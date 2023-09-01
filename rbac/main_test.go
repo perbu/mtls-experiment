@@ -84,7 +84,9 @@ func TestLoadRBACPolicyFromBytes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(string(bytes))
+	if len(bytes) < 10 {
+		t.Error("Expected policy to be dumped as JSON.")
+	}
 }
 
 func TestInvalidPolicy(t *testing.T) {

@@ -12,7 +12,8 @@ func (policy RBACPolicy) GinMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clientCN := extractCNFromCert(c.Request)
 		if clientCN == "" {
-			policy.log(slog.LevelError, "No client certificate found")
+			policy.log(slog.LevelError, "No CN in client certificate", "method", c.Request.Method,
+				"path", c.Request.URL.Path)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			return
 		}
@@ -23,7 +24,8 @@ func (policy RBACPolicy) GinMiddleware() gin.HandlerFunc {
 			return
 		}
 		if !hasPermission {
-			policy.log(slog.LevelError, "Client %s does not have permission to %s %s", clientCN, c.Request.Method, c.Request.URL.Path)
+			policy.log(slog.LevelError, "No permission", "client", clientCN,
+				"method", c.Request.Method, "path", c.Request.URL.Path)
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 			return
 		}
@@ -35,7 +37,8 @@ func (policy RBACPolicy) stdlibMiddleware(next http.HandlerFunc) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientCN := extractCNFromCert(r)
 		if clientCN == "" {
-			policy.log(slog.LevelError, "No client certificate found")
+			policy.log(slog.LevelError, "No CN in client certificate", "method", r.Method,
+				"path", r.URL.Path)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -46,7 +49,8 @@ func (policy RBACPolicy) stdlibMiddleware(next http.HandlerFunc) http.HandlerFun
 			return
 		}
 		if !hasPermission {
-			policy.log(slog.LevelError, "Client %s does not have permission to %s %s", clientCN, r.Method, r.URL.Path)
+			policy.log(slog.LevelError, "No permission", "client", clientCN,
+				"method", r.Method, "path", r.URL.Path)
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
