@@ -10,11 +10,40 @@ echo "Generating root CA..."
 openssl genpkey -algorithm RSA -out certs/ca.key
 openssl req -x509 -new -nodes -key certs/ca.key -subj "/CN=RootCA" -days 1024 -out certs/ca.crt
 
-# Generate Server Cert
-echo "Generating server cert..."
-openssl genpkey -algorithm RSA -out certs/server.key
-openssl req -new -key certs/server.key -subj "/CN=server" -out certs/server.csr
+echo dumping san config.
+cat > certs/san.cnf << EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
 
+[req_distinguished_name]
+countryName = Country Name (2 letter code)
+countryName_default = US
+stateOrProvinceName = State or Province Name (full name)
+stateOrProvinceName_default = CA
+localityName = Locality Name (eg, city)
+localityName_default = San Francisco
+organizationalUnitName  = Organizational Unit Name (eg, section)
+organizationalUnitName_default  = Development
+commonName = Common Name (eg, YOUR name)
+commonName_max  = 64
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost
+EOF
+
+
+echo "Generating server key"
+openssl genpkey -algorithm RSA -out certs/server.key
+echo "Generating server CSR"
+openssl req -new -key certs/server.key -subj "/CN=localhost" -config certs/san.cnf -extensions v3_req -out certs/server.csr
+
+# Sign the CSR with Root CA
+echo "Signing server CSR"
+openssl x509 -req -in certs/server.csr -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial -out certs/server.crt -days 1024 -extensions v3_req -extfile certs/san.cnf
 # Function to generate key and certificate for a given role
 generate_cert_for_role() {
     local ROLE=$1

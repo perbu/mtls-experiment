@@ -38,9 +38,15 @@ func main() {
 	r.DELETE("/products", deleteProducts)
 
 	// mTLS configuration
-	serverCert, _ := tls.LoadX509KeyPair("server.crt", "server.key")
+	serverCert, err := tls.LoadX509KeyPair("certs/server.crt", "certs/server.key")
+	if err != nil {
+		log.Fatalf("Error loading server certificate: %v\n", err)
+	}
 	clientCAPool := x509.NewCertPool()
-	caCert, _ := os.ReadFile("ca.crt")
+	caCert, err := os.ReadFile("certs/ca.crt")
+	if err != nil {
+		log.Fatalf("Error reading CA cert: %v\n", err)
+	}
 	clientCAPool.AppendCertsFromPEM(caCert)
 
 	serverTLSConfig := &tls.Config{
