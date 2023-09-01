@@ -52,3 +52,30 @@ To check if a role has permission for a specific operation on a resource:
 ```go
 hasPermission, err := policy.CheckPermission("api1", "/users", "GET")
 ```
+
+### Middleware
+
+If you're using Gin you can just use the provided middleware to apply RBAC to your API endpoints:
+
+```go
+	r := gin.Default()
+	policy, err := rbac.NewFromFile("policy.json", nil)
+	if err != nil {
+		log.Fatalf("Error loading RBAC policy: %v\n", err)
+	}
+	r.Use(policy.GinMiddleware()) // Apply RBAC middleware to all routes
+	r.GET("/users", getUsers)
+	r.PUT("/users", putUsers)
+	// ...
+```
+
+If you're using the standard `net/http` package, a wrapper function is provided that you can use to apply RBAC to your handlers:
+
+```go
+policy, err := rbac.NewFromFile("policy.json", nil)
+if err != nil {
+log.Fatalf("Error loading RBAC policy: %v\n", err)
+}
+http.Handle("/some-endpoint", policy.WithRBACMiddleware(YourHandlerFunction))
+http.ListenAndServe(":8080", nil)
+```
