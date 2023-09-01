@@ -4,20 +4,14 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 )
 
 func main() {
-	if len(os.Args) < 4 {
-		fmt.Println("Usage: cli <client.crt> <client.key> <ca.crt>")
-		return
-	}
-
-	clientCertPath := os.Args[1]
-	clientKeyPath := os.Args[2]
-	caCertPath := os.Args[3]
+	clientCertPath := "certs/client1.crt"
+	clientKeyPath := "certs/client1.key"
+	caCertPath := "certs/ca.crt"
 
 	// Load client certificate and key
 	clientCert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
@@ -27,7 +21,7 @@ func main() {
 	}
 
 	// Load CA cert
-	caCert, err := ioutil.ReadFile(caCertPath)
+	caCert, err := os.ReadFile(caCertPath)
 	if err != nil {
 		fmt.Printf("Error reading CA cert: %v\n", err)
 		return
@@ -52,7 +46,11 @@ func main() {
 		fmt.Printf("Error making GET request to /users: %v\n", err)
 		return
 	}
-	defer response.Body.Close()
+	err = response.Body.Close()
+	if err != nil {
+		fmt.Printf("Error closing response body: %v\n", err)
+		return
+	}
 	fmt.Println("/users response:", response.Status)
 
 	response, err = client.Get("https://localhost:8443/products")
@@ -60,6 +58,10 @@ func main() {
 		fmt.Printf("Error making GET request to /products: %v\n", err)
 		return
 	}
-	defer response.Body.Close()
+	err = response.Body.Close()
+	if err != nil {
+		fmt.Printf("Error closing response body: %v\n", err)
+		return
+	}
 	fmt.Println("/products response:", response.Status)
 }

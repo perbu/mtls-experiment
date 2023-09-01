@@ -1,13 +1,30 @@
 {
   "roles": {
-    "api1": {
-      "permissions": ["GET", "PUT", "POST", "DELETE"]
+    "client1": {
+      "permissions": {
+        "/users": [
+          "GET",
+          "PUT",
+          "POST",
+          "DELETE"
+        ],
+        "/products": [
+          "GET",
+          "PUT",
+          "POST",
+          "DELETE"
+        ]
+      }
     },
-    "api2": {
-      "permissions": ["GET"]
-    },
-    "api3": {
-      "permissions": ["GET", "PUT"]
+    "client2": {
+      "permissions": {
+        "/users": [
+          "GET"
+        ],
+        "/products": [
+          "GET"
+        ]
+      }
     }
   }
 }

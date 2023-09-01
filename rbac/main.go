@@ -3,6 +3,8 @@ package rbac
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
 )
 
 var RoleNotFoundError = errors.New("role not found")
@@ -42,7 +44,21 @@ func New(data []byte) (RBACPolicy, error) {
 	var policy RBACPolicy
 	err := json.Unmarshal(data, &policy)
 	if err != nil {
-		return RBACPolicy{}, err
+		return RBACPolicy{}, fmt.Errorf("json.Unmarshal: %w", err)
 	}
 	return policy, nil
+}
+
+// NewFromFile reads the policy from a file and creates a new RBACPolicy.
+func NewFromFile(file string) (RBACPolicy, error) {
+	pBytes, err := os.ReadFile(file)
+	if err != nil {
+		return RBACPolicy{}, fmt.Errorf("os.ReadFile: %w", err)
+	}
+	return New(pBytes)
+}
+
+// Dump returns the JSON representation of the policy as bytes, pretty-printed.
+func (p RBACPolicy) Dump() ([]byte, error) {
+	return json.MarshalIndent(p, "", "  ")
 }

@@ -79,6 +79,12 @@ func TestLoadRBACPolicyFromBytes(t *testing.T) {
 	if perms, ok := policy.Roles["api1"].Permissions["/users"]; !ok || len(perms) != 4 {
 		t.Error("Expected role api1 to have 4 permissions for /users.")
 	}
+	// dump the policy to stdout
+	bytes, err := policy.Dump()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(string(bytes))
 }
 
 func TestInvalidPolicy(t *testing.T) {

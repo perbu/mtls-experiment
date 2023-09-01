@@ -24,13 +24,13 @@ A sample policy is represented in JSON format:
 ```json
 {
   "roles": {
-    "api": {
+    "client1": {
       "permissions": {
         "/users": ["GET", "PUT", "POST", "DELETE"],
         "/products": ["GET", "PUT"]
       }
     },
-    "useragent": {
+    "client2": {
       "permissions": {
         "/users": ["GET"]
       }

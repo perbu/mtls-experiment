@@ -1,12 +1,19 @@
 #!/bin/bash
 
 # Directory to store generated certs and keys
+set -e
+rm -rf  certs
 mkdir -p certs
 
 # Generate Root CA
 echo "Generating root CA..."
 openssl genpkey -algorithm RSA -out certs/ca.key
 openssl req -x509 -new -nodes -key certs/ca.key -subj "/CN=RootCA" -days 1024 -out certs/ca.crt
+
+# Generate Server Cert
+echo "Generating server cert..."
+openssl genpkey -algorithm RSA -out certs/server.key
+openssl req -new -key certs/server.key -subj "/CN=server" -out certs/server.csr
 
 # Function to generate key and certificate for a given role
 generate_cert_for_role() {
@@ -25,7 +32,7 @@ generate_cert_for_role() {
 }
 
 # Generate keys and certificates for each role
-for ROLE in read write readwrite; do
+for ROLE in client1 client2 client3; do
     generate_cert_for_role $ROLE
 done
 
