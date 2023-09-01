@@ -1,0 +1,13 @@
+{
+  "roles": {
+    "api1": {
+      "permissions": ["GET", "PUT", "POST", "DELETE"]
+    },
+    "api2": {
+      "permissions": ["GET"]
+    },
+    "api3": {
+      "permissions": ["GET", "PUT"]
+    }
+  }
+}

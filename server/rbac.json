@@ -1,0 +1,20 @@
+{
+  "roles": {
+    "api1": {
+      "permissions": {
+        "/users": ["GET"],
+        "/products": ["GET"]
+      }
+    },
+    "api2": {
+      "permissions": {
+        "/users": ["GET"]
+      }
+    },
+    "api3": {
+      "permissions": {
+        "/products": ["GET"]
+      }
+    }
+  }
+}
