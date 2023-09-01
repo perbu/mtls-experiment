@@ -67,7 +67,7 @@ func TestLoadRBACPolicyFromBytes(t *testing.T) {
 		}
 	}`)
 
-	policy, err := New(data)
+	policy, err := New(data, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestInvalidPolicy(t *testing.T) {
 			}
 		}
 	`)
-	_, err := New(data)
+	_, err := New(data, nil)
 	if err == nil {
 		t.Error("Expected error for invalid policy.")
 	}
