@@ -14,7 +14,7 @@ func (policy RBACPolicy) GinMiddleware() gin.HandlerFunc {
 		if clientCN == "" {
 			policy.log(slog.LevelError, "No CN in client certificate", "method", c.Request.Method,
 				"path", c.Request.URL.Path)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Unauthorized"})
 			return
 		}
 		hasPermission, err := policy.CheckPermission(clientCN, c.Request.URL.Path, c.Request.Method)
@@ -39,7 +39,7 @@ func (policy RBACPolicy) stdlibMiddleware(next http.HandlerFunc) http.HandlerFun
 		if clientCN == "" {
 			policy.log(slog.LevelError, "No CN in client certificate", "method", r.Method,
 				"path", r.URL.Path)
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized", http.StatusForbidden)
 			return
 		}
 		hasPermission, err := policy.CheckPermission(clientCN, r.URL.Path, r.Method)
@@ -58,7 +58,7 @@ func (policy RBACPolicy) stdlibMiddleware(next http.HandlerFunc) http.HandlerFun
 	}
 }
 
-func (policy RBACPolicy) WithMiddleware(handler http.HandlerFunc) http.HandlerFunc {
+func (policy RBACPolicy) WithRBAC(handler http.HandlerFunc) http.HandlerFunc {
 	return policy.stdlibMiddleware(handler)
 }
 

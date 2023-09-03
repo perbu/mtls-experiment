@@ -3,16 +3,10 @@
     "client1": {
       "permissions": {
         "/users": [
-          "GET",
-          "PUT",
-          "POST",
-          "DELETE"
+          "*"
         ],
         "/products": [
-          "GET",
-          "PUT",
-          "POST",
-          "DELETE"
+          "*"
         ]
       }
     },

@@ -1,6 +1,7 @@
 package rbac
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,7 +19,7 @@ type Role struct {
 
 type RBACPolicy struct {
 	Roles  map[string]Role `json:"roles"`
-	logger *slog.Logger
+	logger logger
 }
 
 func (policy RBACPolicy) CheckPermission(role, resource, operation string) (bool, error) {
@@ -31,7 +32,8 @@ func (policy RBACPolicy) CheckPermission(role, resource, operation string) (bool
 		return false, nil
 	}
 	for _, op := range ops {
-		if op == operation {
+		// check that the operation or * is allowed:
+		if op == operation || op == "*" {
 			return true, nil
 		}
 	}
@@ -39,23 +41,36 @@ func (policy RBACPolicy) CheckPermission(role, resource, operation string) (bool
 }
 
 // New creates a new RBACPolicy from the given JSON data.
-func New(data []byte, logger *slog.Logger) (RBACPolicy, error) {
+func New(data []byte, options ...func(policy *RBACPolicy)) (RBACPolicy, error) {
 	var policy RBACPolicy
 	err := json.Unmarshal(data, &policy)
 	if err != nil {
 		return RBACPolicy{}, fmt.Errorf("json.Unmarshal: %w", err)
 	}
-	policy.logger = logger
+	for _, option := range options {
+		option(&policy)
+	}
 	return policy, nil
 }
 
 // NewFromFile reads the policy from a file and creates a new RBACPolicy.
-func NewFromFile(file string, logger *slog.Logger) (RBACPolicy, error) {
+func NewFromFile(file string, options ...func(policy *RBACPolicy)) (RBACPolicy, error) {
 	pBytes, err := os.ReadFile(file)
 	if err != nil {
 		return RBACPolicy{}, fmt.Errorf("os.ReadFile: %w", err)
 	}
-	return New(pBytes, logger)
+	return New(pBytes, options...)
+}
+
+type logger interface {
+	Log(ctx context.Context, level slog.Level, msg string, args ...any)
+}
+
+// WithLogger sets the logger for the policy.
+func WithLogger(logger logger) func(policy *RBACPolicy) {
+	return func(policy *RBACPolicy) {
+		policy.logger = logger
+	}
 }
 
 // Dump returns the JSON representation of the policy as bytes, pretty-printed.

@@ -43,7 +43,7 @@ A sample policy is represented in JSON format:
 
 ```go
 data := []byte(yourPolicyJSON)
-policy, err := rbac.LoadRBACPolicyFromBytes(data)
+policy, err := rbac.New(data).WithLogger(logger)
 ```
 
 ### Checking Permissions
